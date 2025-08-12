@@ -1,0 +1,6 @@
+@GameService_HostAddress = http://localhost:5148
+
+GET {{GameService_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
