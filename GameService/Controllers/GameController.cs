@@ -1,6 +1,7 @@
-﻿using GameService.Model;
+﻿using FunGame.Common;
 using Microsoft.AspNetCore.Mvc;
 using NLog;
+using System.Linq;
 
 
 namespace GameService.Controllers
@@ -10,42 +11,45 @@ namespace GameService.Controllers
     public class GameController : ControllerBase
     {
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
-        private static readonly string[] Choices = ["rock", "paper", "scissors", "lizard", "spock"];
-        private static readonly Dictionary<string, string[]> WinsAgainst = new()
-        {
-            { "rock", new[] { "scissors", "lizard" } },
-            { "paper", new[] { "rock", "spock" } },
-            { "scissors", new[] { "paper", "lizard" } },
-            { "lizard", new[] { "paper", "spock" } },
-            { "spock", new[] { "rock", "scissors" } }
-        };
 
         [HttpPost("compute")]
         public IActionResult Compute([FromBody] ComputeRequest request)
         {
-            if (!Choices.Any(choice =>
-                    choice.Equals(request.PlayerChoice, StringComparison.InvariantCultureIgnoreCase))
-                || !Choices.Any(choice =>
-                    choice.Equals(request.ComputerChoice, StringComparison.InvariantCultureIgnoreCase)))
-                return BadRequest(new { Error = "Invalid choices." });
-                
+            if (!ModelState.IsValid)
+            {
+                Logger.Warn($"Invalid compute request: {ModelState}");
+                return BadRequest(ModelState);
+            }
+
             try
             {
-                string result;
-                if (request.PlayerChoice.Equals(request.ComputerChoice, StringComparison.InvariantCultureIgnoreCase))
-                    result = "It's a tie!";
-                else if (WinsAgainst[request.PlayerChoice.ToLowerInvariant()].Contains(request.ComputerChoice.ToLowerInvariant()))
-                    result = "You win!";
-                else
-                    result = "You lose!";
-                    
-                Logger.Info($"Computed result: {request.PlayerChoice} vs {request.ComputerChoice} -> {result}");
-                return Ok(new { Result = result });
+                if (!Enum.IsDefined(typeof(GameChoice), request.PlayerChoice) ||
+                    !Enum.IsDefined(typeof(GameChoice), request.ComputerChoice))
+                {
+                    Logger.Warn($"Invalid choices: PlayerChoice={request.PlayerChoice}, ComputerChoice={request.ComputerChoice}");
+                    return BadRequest(new { Error = "Invalid player or computer choice." });
+                }
+
+                if (request.PlayerChoice == request.ComputerChoice)
+                {
+                    Logger.Info($"Game tied: {request.PlayerChoice} vs {request.ComputerChoice}");
+                    return Ok(new GameResponse { Result = "Tie" });
+                }
+
+                if (GameConstants.WinsAgainst[request.PlayerChoice].Contains(request.ComputerChoice))
+                {
+                    Logger.Info($"Player wins: {request.PlayerChoice} beats {request.ComputerChoice}");
+                    return Ok(new GameResponse { Result = "Player wins!" });
+                }
+
+                Logger.Info($"Computer wins: {request.PlayerChoice} loses to { request.ComputerChoice}");
+                return Ok(new GameResponse { Result = "Computer wins!" });
             }
             catch (Exception ex)
             {
-                Logger.Error(ex, "Unexpected error in Compute endpoint.");
-                throw; // Middleware handles
+                Logger.Error(ex, "Error computing game result for PlayerChoice={0}, ComputerChoice={1}",
+                    request.PlayerChoice, request.ComputerChoice);
+                return StatusCode(500, new { Error = "Internal server error." });
             }
         }
     }

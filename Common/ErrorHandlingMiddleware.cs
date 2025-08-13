@@ -1,7 +1,8 @@
 ﻿using System.Text.Json;
+using Microsoft.AspNetCore.Http;
 using NLog;
 
-namespace GameService.Middlewares
+namespace FunGame.Common
 {
     public class ErrorHandlingMiddleware(RequestDelegate next)
     {

@@ -23,8 +23,6 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-app.UseRouting(); // <-- Enable routing middleware
-
 app.UseAuthorization();
 
 app.MapControllers();

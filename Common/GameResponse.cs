@@ -1,0 +1,8 @@
+﻿namespace FunGame.Common
+{
+    public class GameResponse
+    {
+        public string Result { get; set; } = string.Empty;
+
+    }
+}
