@@ -1,0 +1,43 @@
+services:
+  player-service:
+    build:
+      context: ../PlayerService
+      dockerfile: Dockerfile
+    ports:
+      - "5000:5000"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ServiceUrls__GameService=http://game-service:5001/api/game/compute
+      - ServiceUrls__ScoreService=http://score-service:5002/api/score/add
+      - ServiceUrls__RandomNumberService=https://codechallenge.boohma.com/random
+    depends_on:
+      - game-service
+      - score-service
+    networks:
+      - rpsls-network
+
+  game-service:
+    build:
+      context: ../GameService
+      dockerfile: Dockerfile
+    ports:
+      - "5001:5001"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+    networks:
+      - rpsls-network
+
+  score-service:
+    build:
+      context: ../ScoreService
+      dockerfile: Dockerfile
+    ports:
+      - "5002:5002"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+    networks:
+      - rpsls-network
+
+networks:
+  rpsls-network:
+    driver: bridge

@@ -8,19 +8,19 @@
         "ASPNETCORE_ENVIRONMENT": "Development"
       },
       "dotnetRunMessages": true,
-      "applicationUrl": "http://localhost:5059"
+      "applicationUrl": "http://localhost:5000"
+    },
+    "Container (Dockerfile)": {
+      "commandName": "Docker",
+      "launchBrowser": true,
+      "launchUrl": "{Scheme}://{ServiceHost}:{ServicePort}/api/player/choices",
+      "environmentVariables": {
+        "ASPNETCORE_HTTPS_PORTS": "8081",
+        "ASPNETCORE_HTTP_PORTS": "8080"
+      },
+      "publishAllPorts": true,
+      "useSSL": false
     }
-    //"Container (Dockerfile)": {
-    //  "commandName": "Docker",
-    //  "launchBrowser": true,
-    //  "launchUrl": "{Scheme}://{ServiceHost}:{ServicePort}/swagger",
-    //  "environmentVariables": {
-    //    "ASPNETCORE_HTTPS_PORTS": "8081",
-    //    "ASPNETCORE_HTTP_PORTS": "8080"
-    //  },
-    //  "publishAllPorts": true,
-    //  "useSSL": true
-    //}
   },
   "$schema": "http://json.schemastore.org/launchsettings.json",
   "iisSettings": {
