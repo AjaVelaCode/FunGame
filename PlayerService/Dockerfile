@@ -9,12 +9,12 @@ ENV ASPNETCORE_ENVIRONMENT=Development
 
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
-COPY ["PlayerService.csproj", "."]
-COPY ["../FunGame.Common/FunGame.Common.csproj", "FunGame.Common/"]
-RUN dotnet restore "./PlayerService.csproj"
-COPY . .
-COPY ../FunGame.Common/ ./FunGame.Common/
-WORKDIR "/src/."
+COPY ["PlayerService/PlayerService.csproj", "PlayerService/"]
+COPY ["Common/FunGame.Common.csproj", "Common/"]
+RUN dotnet restore "PlayerService/PlayerService.csproj"
+COPY PlayerService/ PlayerService/
+COPY Common/ Common/
+WORKDIR "/src/PlayerService"
 RUN dotnet build "PlayerService.csproj" -c Release -o /app/build
 
 FROM build AS publish
@@ -23,5 +23,6 @@ RUN dotnet publish "PlayerService.csproj" -c Release -o /app/publish /p:UseAppHo
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-COPY nlog.config .
+COPY PlayerService/nlog.config .
+RUN mkdir -p /app/logs
 ENTRYPOINT ["dotnet", "PlayerService.dll"]

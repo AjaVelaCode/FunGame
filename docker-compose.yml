@@ -1,8 +1,8 @@
 services:
   player-service:
     build:
-      context: ./PlayerService
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: PlayerService/Dockerfile
     ports:
       - "5000:5000"
     environment:
@@ -18,8 +18,8 @@ services:
 
   game-service:
     build:
-      context: ./GameService
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: GameService/Dockerfile
     ports:
       - "5001:5001"
     environment:
@@ -29,8 +29,8 @@ services:
 
   score-service:
     build:
-      context: ./ScoreService
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: ScoreService/Dockerfile
     ports:
       - "5002:5002"
     environment:
