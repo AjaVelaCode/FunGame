@@ -1,4 +1,3 @@
-using FunGame.Common;
 using NLog.Web;
 using ServiceUrls = PlayerService.Models.ServiceUrls;
 
@@ -12,7 +11,7 @@ builder.Services.AddHttpClient();
 builder.Services.AddOptions<ServiceUrls>()
     .Bind(builder.Configuration.GetSection("ServiceUrls"))
     .ValidateDataAnnotations()
-    .ValidateOnStart(); 
+    .ValidateOnStart();
 builder.Host.UseNLog();
 builder.Services.AddCors(options =>
 {

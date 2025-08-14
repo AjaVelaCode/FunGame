@@ -1,14 +1,13 @@
-﻿using FunGame.Common.Constants;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
+using FunGame.Common.Constants;
 
-namespace FunGame.Common.Requests
+namespace FunGame.Common.Requests;
+
+public class ComputeRequest
 {
-    public class ComputeRequest
-    {
-        [Required(ErrorMessage = "PlayerChoice is required.")]
-        public GameChoice PlayerChoice { get; set; }
+    [Required(ErrorMessage = "PlayerChoice is required.")]
+    public GameChoice PlayerChoice { get; set; }
 
-        [Required(ErrorMessage = "ComputerChoice is required.")]
-        public GameChoice ComputerChoice { get; set; }
-    }
+    [Required(ErrorMessage = "ComputerChoice is required.")]
+    public GameChoice ComputerChoice { get; set; }
 }

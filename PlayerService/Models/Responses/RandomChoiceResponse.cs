@@ -1,10 +1,7 @@
-﻿using FunGame.Common.Constants;
+﻿namespace PlayerService.Models.Responses;
 
-namespace PlayerService.Models.Responses
+public class RandomChoiceResponse
 {
-    public class RandomChoiceResponse
-    {
-        public int Id { get; set; }
-        public string Name { get; set; } = string.Empty;
-    }
+    public int Id { get; set; }
+    public string Name { get; set; } = string.Empty;
 }

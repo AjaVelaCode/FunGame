@@ -1,4 +1,4 @@
-﻿using FunGame.Common;
+﻿using System.Net;
 using FunGame.Common.Constants;
 using FunGame.Common.Helpers;
 using FunGame.Common.Responses;
@@ -11,166 +11,157 @@ using PlayerService.Models;
 using PlayerService.Models.Requests;
 using PlayerService.Models.Responses;
 
-namespace PlayerService.Tests
+namespace PlayerService.Tests;
+
+public class PlayerControllerTests
 {
-    public class PlayerControllerTests
+    private readonly PlayerController _controller;
+    private readonly HttpClient _httpClient;
+    private readonly Mock<IHttpClientFactory> _httpClientFactoryMock;
+    private readonly Mock<IOptions<ServiceUrls>> _serviceUrlsMock;
+
+    public PlayerControllerTests()
     {
-        private readonly Mock<IHttpClientFactory> _httpClientFactoryMock;
-        private readonly Mock<IOptions<ServiceUrls>> _serviceUrlsMock;
-        private readonly PlayerController _controller;
-        private readonly HttpClient _httpClient;
+        _httpClientFactoryMock = new Mock<IHttpClientFactory>();
+        _httpClient = new HttpClient(new MockHttpMessageHandler());
+        _httpClientFactoryMock.Setup(f => f.CreateClient(It.IsAny<string>())).Returns(_httpClient);
 
-        public PlayerControllerTests()
+        _serviceUrlsMock = new Mock<IOptions<ServiceUrls>>();
+        _serviceUrlsMock.Setup(o => o.Value).Returns(new ServiceUrls
         {
-            _httpClientFactoryMock = new Mock<IHttpClientFactory>();
-            _httpClient = new HttpClient(new MockHttpMessageHandler());
-            _httpClientFactoryMock.Setup(f => f.CreateClient(It.IsAny<string>())).Returns(_httpClient);
+            GameService = "http://localhost:5148/api/game/compute",
+            ScoreService = "http://localhost:5064/api/score/add",
+            RandomNumberService = "http://codechallenge.boohma.com/random"
+        });
 
-            _serviceUrlsMock = new Mock<IOptions<ServiceUrls>>();
-            _serviceUrlsMock.Setup(o => o.Value).Returns(new ServiceUrls
-            {
-                GameService = "http://localhost:5148/api/game/compute",
-                ScoreService = "http://localhost:5064/api/score/add",
-                RandomNumberService = "http://codechallenge.boohma.com/random"
-            });
-
-            _controller = new PlayerController(_httpClientFactoryMock.Object, _serviceUrlsMock.Object);
-        }
-
-        [Fact]
-        public void GetAllChoices_ReturnsAllChoicesExcludingNone()
-        {
-            // Act
-            var result = _controller.GetAllChoices() as OkObjectResult;
-            var choices = result?.Value as List<ChoiceResponse>;
-
-            // Assert
-            Assert.NotNull(result);
-            Assert.Equal(200, result.StatusCode);
-            Assert.NotNull(choices);
-            Assert.Equal(5, choices.Count);
-
-            var expectedNames = new[] { "rock", "paper", "scissors", "lizard", "spock" };
-            var actualNames = choices.Select(c => c.Name).ToArray();
-            Assert.Equal(expectedNames, actualNames);
-
-            Assert.DoesNotContain(choices, c => c.Name == "none");
-        }
-
-        [Fact]
-        public async Task GetRandomChoice_ReturnsValidChoice()
-        {
-            // Act
-            var result = await _controller.GetRandomChoice() as OkObjectResult;
-            var response = (result?.Value as RandomChoiceResponse)!;
-
-            // Assert
-            Assert.NotNull(result);
-            Assert.Equal(200, result.StatusCode);
-            Assert.Contains(response.Name, GameChoiceExtensions.GetValidChoiceNames());
-        }
-
-        [Fact]
-        public async Task Play_ValidRequest_ReturnsGameResult()
-        {
-            // Arrange
-            var request = new PlayRequest { PlayerChoiceId = (int)GameChoice.Paper, UserId = "Alice" };
-
-            // Act
-            var result = await _controller.Play(request) as OkObjectResult;
-            var response = (result?.Value as GamePlayResponse)!;
-
-            // Assert
-            Assert.NotNull(result);
-            Assert.Equal(200, result.StatusCode);
-            Assert.Equal(GameChoice.Paper, response.PlayerChoice);
-            Assert.Contains(response.ComputerChoice, GameChoiceExtensions.GetValidChoices());
-            Assert.NotEqual(GameChoice.None, response.ComputerChoice);
-            Assert.NotEmpty(response.Result);
-        }
-
-        [Fact]
-        public async Task Play_EmptyBody_ReturnsBadRequest()
-        {
-            // Arrange
-            var request = new PlayRequest(); // Simulates {} with PlayerChoiceId = None
-
-            // Act
-            var result = await _controller.Play(request) as BadRequestObjectResult;
-            var errorResponse = JsonConvert.DeserializeObject<ErrorResponse>(JsonConvert.SerializeObject(result!.Value));
-
-            // Assert
-            Assert.NotNull(result);
-            Assert.Equal(400, result.StatusCode);
-            Assert.Contains("PlayerChoiceId is required.", errorResponse!.Error);
-        }
-
-        [Fact]
-        public async Task Play_InvalidPlayerChoice_ReturnsBadRequest()
-        {
-            // Arrange
-            var request = new PlayRequest { PlayerChoiceId = -2, UserId = "Alice" };
-
-            // Act
-            var result = await _controller.Play(request) as BadRequestObjectResult;
-            var errorResponse = JsonConvert.DeserializeObject<ErrorResponse>(JsonConvert.SerializeObject(result!.Value));
-
-            // Assert
-            Assert.NotNull(result);
-            Assert.Equal(400, result.StatusCode);
-            Assert.Contains("Invalid choice", errorResponse!.Error);
-        }
-
-        [Fact]
-        public async Task Play_DefaultPlayerChoiceNone_ReturnsBadRequest()
-        {
-            // Arrange
-            var request = new PlayRequest { PlayerChoiceId = (int)GameChoice.None, UserId = "Alice" };
-
-            // Act
-            var result = await _controller.Play(request) as BadRequestObjectResult;
-            var errorResponse = JsonConvert.DeserializeObject<ErrorResponse>(JsonConvert.SerializeObject(result!.Value));
-
-            // Assert
-            Assert.NotNull(result);
-            Assert.Equal(400, result.StatusCode);
-            Assert.Contains("PlayerChoiceId is required.", errorResponse!.Error);
-        }
-
+        _controller = new PlayerController(_httpClientFactoryMock.Object, _serviceUrlsMock.Object);
     }
 
-    // Mock HttpMessageHandler for HttpClient
-    public class MockHttpMessageHandler : HttpMessageHandler
+    [Fact]
+    public void GetAllChoices_ReturnsAllChoicesExcludingNone()
     {
-        protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, System.Threading.CancellationToken cancellationToken)
-        {
-            if (request.RequestUri.ToString().Contains("random"))
-            {
-                return new HttpResponseMessage
-                {
-                    StatusCode = System.Net.HttpStatusCode.OK,
-                    Content = new StringContent("{\"random_number\": 1}")
-                };
-            }
-            else if (request.RequestUri.ToString().Contains("game/compute"))
-            {
-                return new HttpResponseMessage
-                {
-                    StatusCode = System.Net.HttpStatusCode.OK,
-                    Content = new StringContent("{\"Result\": \"Player wins!\"}")
-                };
-            }
-            else if (request.RequestUri.ToString().Contains("score/add"))
-            {
-                return new HttpResponseMessage
-                {
-                    StatusCode = System.Net.HttpStatusCode.OK,
-                    Content = new StringContent("")
-                };
-            }
-            return new HttpResponseMessage(System.Net.HttpStatusCode.NotFound);
-        }
+        // Act
+        var result = _controller.GetAllChoices() as OkObjectResult;
+        var choices = result?.Value as List<ChoiceResponse>;
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.Equal(200, result.StatusCode);
+        Assert.NotNull(choices);
+        Assert.Equal(5, choices.Count);
+
+        var expectedNames = new[] { "rock", "paper", "scissors", "lizard", "spock" };
+        var actualNames = choices.Select(c => c.Name).ToArray();
+        Assert.Equal(expectedNames, actualNames);
+
+        Assert.DoesNotContain(choices, c => c.Name == "none");
     }
 
+    [Fact]
+    public async Task GetRandomChoice_ReturnsValidChoice()
+    {
+        // Act
+        var result = await _controller.GetRandomChoice() as OkObjectResult;
+        var response = (result?.Value as RandomChoiceResponse)!;
 
+        // Assert
+        Assert.NotNull(result);
+        Assert.Equal(200, result.StatusCode);
+        Assert.Contains(response.Name, GameChoiceExtensions.GetValidChoiceNames());
+    }
+
+    [Fact]
+    public async Task Play_ValidRequest_ReturnsGameResult()
+    {
+        // Arrange
+        var request = new PlayRequest { PlayerChoiceId = (int)GameChoice.Paper, UserId = "Alice" };
+
+        // Act
+        var result = await _controller.Play(request) as OkObjectResult;
+        var response = (result?.Value as GamePlayResponse)!;
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.Equal(200, result.StatusCode);
+        Assert.Equal(GameChoice.Paper, response.PlayerChoice);
+        Assert.Contains(response.ComputerChoice, GameChoiceExtensions.GetValidChoices());
+        Assert.NotEqual(GameChoice.None, response.ComputerChoice);
+        Assert.NotEmpty(response.Result);
+    }
+
+    [Fact]
+    public async Task Play_EmptyBody_ReturnsBadRequest()
+    {
+        // Arrange
+        var request = new PlayRequest(); // Simulates {} with PlayerChoiceId = None
+
+        // Act
+        var result = await _controller.Play(request) as BadRequestObjectResult;
+        var errorResponse = JsonConvert.DeserializeObject<ErrorResponse>(JsonConvert.SerializeObject(result!.Value));
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.Equal(400, result.StatusCode);
+        Assert.Contains("PlayerChoiceId is required.", errorResponse!.Error);
+    }
+
+    [Fact]
+    public async Task Play_InvalidPlayerChoice_ReturnsBadRequest()
+    {
+        // Arrange
+        var request = new PlayRequest { PlayerChoiceId = -2, UserId = "Alice" };
+
+        // Act
+        var result = await _controller.Play(request) as BadRequestObjectResult;
+        var errorResponse = JsonConvert.DeserializeObject<ErrorResponse>(JsonConvert.SerializeObject(result!.Value));
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.Equal(400, result.StatusCode);
+        Assert.Contains("Invalid choice", errorResponse!.Error);
+    }
+
+    [Fact]
+    public async Task Play_DefaultPlayerChoiceNone_ReturnsBadRequest()
+    {
+        // Arrange
+        var request = new PlayRequest { PlayerChoiceId = (int)GameChoice.None, UserId = "Alice" };
+
+        // Act
+        var result = await _controller.Play(request) as BadRequestObjectResult;
+        var errorResponse = JsonConvert.DeserializeObject<ErrorResponse>(JsonConvert.SerializeObject(result!.Value));
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.Equal(400, result.StatusCode);
+        Assert.Contains("PlayerChoiceId is required.", errorResponse!.Error);
+    }
+}
+
+// Mock HttpMessageHandler for HttpClient
+public class MockHttpMessageHandler : HttpMessageHandler
+{
+    protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request,
+        CancellationToken cancellationToken)
+    {
+        if (request.RequestUri.ToString().Contains("random"))
+            return new HttpResponseMessage
+            {
+                StatusCode = HttpStatusCode.OK,
+                Content = new StringContent("{\"random_number\": 1}")
+            };
+        if (request.RequestUri.ToString().Contains("game/compute"))
+            return new HttpResponseMessage
+            {
+                StatusCode = HttpStatusCode.OK,
+                Content = new StringContent("{\"Result\": \"Player wins!\"}")
+            };
+        if (request.RequestUri.ToString().Contains("score/add"))
+            return new HttpResponseMessage
+            {
+                StatusCode = HttpStatusCode.OK,
+                Content = new StringContent("")
+            };
+        return new HttpResponseMessage(HttpStatusCode.NotFound);
+    }
 }

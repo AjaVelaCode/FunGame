@@ -103,8 +103,7 @@ public class ScoreControllerTests
     {
         // Arrange
         _controller.ClearGameResultsForTesting();
-        for (int i = 0; i < 15; i++)
-        {
+        for (var i = 0; i < 15; i++)
             _controller.Add(new GameResult
             {
                 UserId = $"User{i}",
@@ -113,7 +112,6 @@ public class ScoreControllerTests
                 Result = "Computer wins!",
                 Timestamp = DateTime.UtcNow.AddSeconds(-i)
             });
-        }
 
         // Act
         var result = _controller.GetRecent() as OkObjectResult;

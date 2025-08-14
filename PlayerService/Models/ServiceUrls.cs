@@ -1,17 +1,15 @@
-﻿
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
-namespace PlayerService.Models
+namespace PlayerService.Models;
+
+public class ServiceUrls
 {
-    public class ServiceUrls
-    {
-        [Required(ErrorMessage = "GameService URL is required.")]
-        public string GameService { get; set; } = string.Empty;
+    [Required(ErrorMessage = "GameService URL is required.")]
+    public string GameService { get; set; } = string.Empty;
 
-        [Required(ErrorMessage = "ScoreService URL is required.")]
-        public string ScoreService { get; set; } = string.Empty;
+    [Required(ErrorMessage = "ScoreService URL is required.")]
+    public string ScoreService { get; set; } = string.Empty;
 
-        [Required(ErrorMessage = "RandomNumberService URL is required.")]
-        public string RandomNumberService { get; set; } = string.Empty;
-    }
+    [Required(ErrorMessage = "RandomNumberService URL is required.")]
+    public string RandomNumberService { get; set; } = string.Empty;
 }
