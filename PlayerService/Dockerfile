@@ -23,5 +23,5 @@ RUN dotnet publish "PlayerService.csproj" -c Release -o /app/publish /p:UseAppHo
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-COPY NLog.config .
+COPY nlog.config .
 ENTRYPOINT ["dotnet", "PlayerService.dll"]

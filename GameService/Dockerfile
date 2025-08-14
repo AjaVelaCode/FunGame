@@ -22,5 +22,5 @@ RUN dotnet publish "GameService.csproj" -c Release -o /app/publish /p:UseAppHost
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-COPY NLog.config .
+COPY nlog.config .
 ENTRYPOINT ["dotnet", "GameService.dll"]
