@@ -1,9 +1,10 @@
-﻿using System.Net;
-using FunGame.Common;
+﻿using FunGame.Common;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using NLog;
 using PlayerService.Models;
+using System.Net;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace PlayerService.Controllers
 {
@@ -25,10 +26,49 @@ namespace PlayerService.Controllers
             _randomNumberServiceUrl = serviceUrls.Value.RandomNumberService;
         }
 
+        [HttpGet("choices")]
+        public IActionResult GetAllChoices()
+        {
+            try
+            {
+                var choices = Enum.GetNames<GameChoice>();
+                Logger.Info($"Retrieved all game choices: {string.Join(", ", choices)}");
+                return Ok(choices);
+            }
+            catch (Exception ex)
+            {
+                Logger.Error(ex, "Error retrieving game choices");
+                throw; // Middleware handles
+            }
+        }
+
+        [HttpGet("choice")]
+        public async Task<IActionResult> GetRandomChoice()
+        {
+            try
+            {
+                var choices = Enum.GetValues<GameChoice>();
+                var randomChoice = await GetComputerChoiceAsync(choices);
+                Logger.Info($"Generated random choice: {randomChoice}");
+                return Ok(new { Choice = randomChoice.ToString() });
+            }
+            catch (Exception ex)
+            {
+                Logger.Error(ex, "Error generating random choice");
+                throw; // Middleware handles
+            }
+        }
+
 
         [HttpPost("play")]
         public async Task<IActionResult> Play([FromBody] PlayRequest request)
         {
+            if (request.PlayerChoice == GameChoice.None)
+            {
+                Logger.Warn("There is no player's choice");
+                return BadRequest(new { Error = "There is no player's choice" });
+            }
+
             if (!Enum.IsDefined(typeof(GameChoice), request.PlayerChoice))
             {
                 Logger.Warn($"Invalid player choice: {request.PlayerChoice}");
@@ -49,7 +89,7 @@ namespace PlayerService.Controllers
             }
             catch (Exception ex)
             {
-                Logger.Error(ex, "Unexpected error in Play endpoint for user {0}.", request.UserId ?? "Anonymous");
+                Logger.Error(ex, $"Unexpected error in Play endpoint for user {request.UserId}.");
                 throw; // Middleware handles
             }
         }
@@ -63,7 +103,7 @@ namespace PlayerService.Controllers
                     .TimeoutAfter(TimeSpan.FromSeconds(5));
                 if (response == null || response.RandomNumber < 1 || response.RandomNumber > 100)
                 {
-                    Logger.Warn("Invalid random number response: {0}", response?.RandomNumber);
+                    Logger.Warn($"Invalid random number response: {response?.RandomNumber}");
                     throw new HttpRequestException("Invalid response from random number service.");
                 }
                 // Map 1-100 to 0-4 (5 choices)

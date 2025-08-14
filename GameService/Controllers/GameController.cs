@@ -1,7 +1,6 @@
 ﻿using FunGame.Common;
 using Microsoft.AspNetCore.Mvc;
 using NLog;
-using System.Linq;
 
 
 namespace GameService.Controllers
@@ -47,8 +46,7 @@ namespace GameService.Controllers
             }
             catch (Exception ex)
             {
-                Logger.Error(ex, "Error computing game result for PlayerChoice={0}, ComputerChoice={1}",
-                    request.PlayerChoice, request.ComputerChoice);
+                Logger.Error(ex, $"Error computing game result for PlayerChoice={request.PlayerChoice}, ComputerChoice={request.ComputerChoice}");
                 return StatusCode(500, new { Error = "Internal server error." });
             }
         }

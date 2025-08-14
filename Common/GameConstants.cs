@@ -5,6 +5,7 @@ namespace FunGame.Common
     [JsonConverter(typeof(JsonStringEnumConverter))]
     public enum GameChoice
     {
+        None = -1, // Sentinel value for uninitialized choice
         Rock,
         Paper,
         Scissors,

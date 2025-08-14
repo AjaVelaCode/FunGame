@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System.Collections.Concurrent;
-using FunGame.Common;
 using NLog;
 using ScoreService.Model;
 
@@ -10,33 +9,31 @@ namespace ScoreService.Controllers
     [Route("api/[controller]")]
     public class ScoreController : ControllerBase
     {
-        private static readonly ConcurrentQueue<GameResult> RecentResults = new();
-        private const int MaxResults = 10;
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
+        private static readonly ConcurrentBag<GameResult> GameResults = [];
+
 
         [HttpPost("add")]
-        public IActionResult Add([FromBody] GameResult result)
+        public IActionResult Add([FromBody] GameResult request)
         {
-            if (!Enum.IsDefined(typeof(GameChoice), result.PlayerChoice) || !Enum.IsDefined(typeof(GameChoice), result.ComputerChoice) || string.IsNullOrEmpty(result.Result))
             {
-                Logger.Warn($"Invalid game result: PlayerChoice={result.PlayerChoice}, ComputerChoice={result.ComputerChoice}, Result={result.Result}");
-                return BadRequest(new { Error = "Invalid game result data." });
-            }
-
-            try
-            {
-                RecentResults.Enqueue(result);
-                while (RecentResults.Count > MaxResults)
+                if (string.IsNullOrEmpty(request.Result))
                 {
-                    RecentResults.TryDequeue(out _);
+                    Logger.Warn($"Invalid score request: {request}");
+                    return BadRequest(new { Error = "Invalid game result." });
                 }
-                Logger.Info("Added score for user {0}: {1}", result.UserId, result.Result);
-                return Ok();
-            }
-            catch (Exception ex)
-            {
-                Logger.Error(ex, $"Error adding score for user {result.UserId}.");
-                throw; // Middleware handles
+
+                try
+                {
+                    GameResults.Add(request);
+                    Logger.Info($"Score added for user {request.UserId}: {request.PlayerChoice} vs {request.ComputerChoice}, Result: {request.Result}");
+                    return Ok();
+                }
+                catch (Exception ex)
+                {
+                    Logger.Error(ex, $"Error adding score for user {request.UserId}");
+                    throw; // Middleware handles
+                }
             }
         }
 
@@ -45,12 +42,24 @@ namespace ScoreService.Controllers
         {
             try
             {
-                Logger.Info($"Retrieved recent scores, count: {RecentResults.Count}");
-                return Ok(RecentResults.ToArray());
+                var recentResults = GameResults
+                    .OrderByDescending(r => r.Timestamp)
+                    .Take(10)
+                    .Select(r => new
+                    {
+                        r.UserId,
+                        PlayerChoice = r.PlayerChoice.ToString(),
+                        ComputerChoice = r.ComputerChoice.ToString(),
+                        r.Result
+                    })
+                    .ToList();
+
+                Logger.Info($"Retrieved {recentResults.Count} recent game results");
+                return Ok(recentResults);
             }
             catch (Exception ex)
             {
-                Logger.Error(ex, "Error retrieving scores.");
+                Logger.Error(ex, "Error retrieving recent game results");
                 throw; // Middleware handles
             }
         }
@@ -60,7 +69,7 @@ namespace ScoreService.Controllers
         {
             try
             {
-                RecentResults.Clear();
+                GameResults.Clear();
                 Logger.Info("Scoreboard reset.");
                 return Ok();
             }

@@ -1,7 +1,10 @@
-﻿namespace FunGame.Common
+﻿using System.Text.Json.Serialization;
+
+namespace FunGame.Common
 {
     public class RandomNumberResponse
     {
+        [JsonPropertyName("random_number")]
         public int RandomNumber { get; set; }
     }
 }
