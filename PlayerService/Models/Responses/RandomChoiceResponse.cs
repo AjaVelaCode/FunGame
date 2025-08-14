@@ -1,6 +1,6 @@
 ﻿using FunGame.Common.Constants;
 
-namespace PlayerService.Models
+namespace PlayerService.Models.Responses
 {
     public class RandomChoiceResponse
     {

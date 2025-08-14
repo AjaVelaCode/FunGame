@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using ScoreService.Controllers;
 using ScoreService.Model;
+using ScoreService.Model.Responses;
 
 public class ScoreControllerTests
 {

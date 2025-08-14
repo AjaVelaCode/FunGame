@@ -1,13 +1,13 @@
 ﻿using FunGame.Common.Constants;
 
-namespace PlayerService.Models
+namespace ScoreService.Model.Responses
 {
-    public class GamePlayResponse
+    public class RecentResponse
     {
+        public string UserId { get; set; } = string.Empty;
         public GameChoice PlayerChoice { get; set; }
         public GameChoice ComputerChoice { get; set; }
         public string Result { get; set; } = string.Empty;
-        public string FunFact { get; set; } = string.Empty;
-
+        public DateTime Timestamp { get; set; } = DateTime.UtcNow;
     }
 }

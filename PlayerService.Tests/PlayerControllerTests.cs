@@ -8,6 +8,8 @@ using Moq;
 using Newtonsoft.Json;
 using PlayerService.Controllers;
 using PlayerService.Models;
+using PlayerService.Models.Requests;
+using PlayerService.Models.Responses;
 
 namespace PlayerService.Tests
 {

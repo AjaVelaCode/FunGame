@@ -1,14 +1,14 @@
-﻿using FunGame.Common;
-using FunGame.Common.Constants;
+﻿using FunGame.Common.Constants;
 using FunGame.Common.Helpers;
 using FunGame.Common.Responses;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using NLog;
-using PlayerService.Models;
 using System.Net;
 using FunGame.Common.Requests;
 using ServiceUrls = PlayerService.Models.ServiceUrls;
+using PlayerService.Models.Requests;
+using PlayerService.Models.Responses;
 
 namespace PlayerService.Controllers
 {

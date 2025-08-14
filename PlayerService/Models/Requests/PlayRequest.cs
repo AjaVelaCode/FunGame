@@ -1,7 +1,7 @@
 ﻿using FunGame.Common.Constants;
 using System.ComponentModel.DataAnnotations;
 
-namespace PlayerService.Models
+namespace PlayerService.Models.Requests
 {
     public class PlayRequest
     {

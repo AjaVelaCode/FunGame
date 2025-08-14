@@ -1,9 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System.Collections.Concurrent;
-using FunGame.Common;
 using FunGame.Common.Responses;
 using NLog;
 using ScoreService.Model;
+using ScoreService.Model.Responses;
 
 namespace ScoreService.Controllers
 {
