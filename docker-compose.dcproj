@@ -13,6 +13,7 @@
 		<ProjectReference Include="..\PlayerService\PlayerService.csproj" />
 		<ProjectReference Include="..\GameService\GameService.csproj" />
 		<ProjectReference Include="..\ScoreService\ScoreService.csproj" />
+		<ProjectReference Include="..\FunGame.Common\FunGame.Common.csproj" />
 	</ItemGroup>
 	<ItemGroup>
 		<None Include="docker-compose.yml" />

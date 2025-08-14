@@ -9,10 +9,10 @@ ENV ASPNETCORE_ENVIRONMENT=Development
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 COPY ["GameService.csproj", "."]
-COPY ["../RpslsMicroservices.Common/RpslsMicroservices.Common.csproj", "RpslsMicroservices.Common/"]
+COPY ["../FunGame.Common/FunGame.Common.csproj", "FunGame.Common/"]
 RUN dotnet restore "./GameService.csproj"
 COPY . .
-COPY ../RpslsMicroservices.Common/ ./RpslsMicroservices.Common/
+COPY ../FunGame.Common/ ./FunGame.Common/
 WORKDIR "/src/."
 RUN dotnet build "GameService.csproj" -c Release -o /app/build
 
