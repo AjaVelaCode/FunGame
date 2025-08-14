@@ -15,10 +15,8 @@
 		<ProjectReference Include="..\ScoreService\ScoreService.csproj" />
 	</ItemGroup>
 	<ItemGroup>
-    <None Include="docker-compose.override.yml">
-      <DependentUpon>docker-compose.yml</DependentUpon>
-    </None>
-    <None Include="docker-compose.yml" />
-    <None Include=".dockerignore" />
+		<None Include="docker-compose.yml" />
+		<None Include="docker-compose.override.yml" Condition="Exists('docker-compose.override.yml')" />
+		<None Include=".dockerignore" Condition="Exists('.dockerignore')" />
   </ItemGroup>
 </Project>
