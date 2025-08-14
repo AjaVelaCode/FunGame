@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace FunGame.Common
+namespace FunGame.Common.Constants
 {
     [JsonConverter(typeof(JsonStringEnumConverter))]
     public enum GameChoice

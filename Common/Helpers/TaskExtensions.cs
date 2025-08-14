@@ -1,4 +1,4 @@
-﻿namespace FunGame.Common
+﻿namespace FunGame.Common.Helpers
 {
     public static class TaskExtensions
     {

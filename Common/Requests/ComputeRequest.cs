@@ -1,6 +1,7 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using FunGame.Common.Constants;
+using System.ComponentModel.DataAnnotations;
 
-namespace FunGame.Common
+namespace FunGame.Common.Requests
 {
     public class ComputeRequest
     {

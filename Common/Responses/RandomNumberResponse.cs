@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace FunGame.Common
+namespace FunGame.Common.Responses
 {
     public class RandomNumberResponse
     {

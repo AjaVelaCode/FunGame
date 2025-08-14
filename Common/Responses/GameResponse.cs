@@ -1,4 +1,4 @@
-﻿namespace FunGame.Common
+﻿namespace FunGame.Common.Responses
 {
     public class GameResponse
     {

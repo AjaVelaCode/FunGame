@@ -1,4 +1,4 @@
-﻿using FunGame.Common;
+﻿using FunGame.Common.Constants;
 using System.ComponentModel.DataAnnotations;
 
 namespace PlayerService.Models

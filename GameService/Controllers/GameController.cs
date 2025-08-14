@@ -1,4 +1,6 @@
-﻿using FunGame.Common;
+﻿using FunGame.Common.Constants;
+using FunGame.Common.Requests;
+using FunGame.Common.Responses;
 using Microsoft.AspNetCore.Mvc;
 using NLog;
 
@@ -26,7 +28,7 @@ namespace GameService.Controllers
                     !Enum.IsDefined(typeof(GameChoice), request.ComputerChoice))
                 {
                     Logger.Warn($"Invalid choices: PlayerChoice={request.PlayerChoice}, ComputerChoice={request.ComputerChoice}");
-                    return BadRequest(new { Error = "Invalid player or computer choice." });
+                    return BadRequest(new ErrorResponse { Error = "Invalid player or computer choice." });
                 }
 
                 if (request.PlayerChoice == request.ComputerChoice)
@@ -47,7 +49,7 @@ namespace GameService.Controllers
             catch (Exception ex)
             {
                 Logger.Error(ex, $"Error computing game result for PlayerChoice={request.PlayerChoice}, ComputerChoice={request.ComputerChoice}");
-                return StatusCode(500, new { Error = "Internal server error." });
+                return StatusCode(500, new ErrorResponse { Error = "Internal server error." });
             }
         }
     }

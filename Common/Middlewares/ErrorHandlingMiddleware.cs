@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Http;
 using NLog;
 
-namespace FunGame.Common
+namespace FunGame.Common.Middlewares
 {
     public class ErrorHandlingMiddleware(RequestDelegate next)
     {

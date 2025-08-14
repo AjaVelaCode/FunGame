@@ -1,4 +1,5 @@
-﻿using FunGame.Common;
+﻿using FunGame.Common.Constants;
+using FunGame.Common.Responses;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using ScoreService.Controllers;

@@ -1,4 +1,4 @@
-﻿using FunGame.Common;
+﻿using FunGame.Common.Constants;
 
 namespace PlayerService.Models
 {

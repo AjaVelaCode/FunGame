@@ -1,9 +1,14 @@
 ﻿using FunGame.Common;
+using FunGame.Common.Constants;
+using FunGame.Common.Helpers;
+using FunGame.Common.Responses;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using NLog;
 using PlayerService.Models;
 using System.Net;
+using FunGame.Common.Requests;
+using ServiceUrls = PlayerService.Models.ServiceUrls;
 
 namespace PlayerService.Controllers
 {
@@ -49,7 +54,11 @@ namespace PlayerService.Controllers
                 var choices = GameChoice.None.GetValuesWithout();
                 var randomChoice = await GetComputerChoiceAsync(choices);
                 Logger.Info($"Generated random choice: {randomChoice}");
-                return Ok(new RandomChoiceResponse { Choice = randomChoice });
+                return Ok(new RandomChoiceResponse
+                {
+                    Id = (int)randomChoice,
+                    Choice = randomChoice
+                });
             }
             catch (Exception ex)
             {
@@ -119,7 +128,11 @@ namespace PlayerService.Controllers
 
         private async Task<GameResponse> CalculateGameResultAsync(GameChoice playerChoice, GameChoice computerChoice)
         {
-            var computeRequest = new { PlayerChoice = playerChoice, ComputerChoice = computerChoice };
+            var computeRequest = new ComputeRequest
+            {
+                PlayerChoice = playerChoice, 
+                ComputerChoice = computerChoice
+            };
             HttpResponseMessage gameResponse;
             try
             {

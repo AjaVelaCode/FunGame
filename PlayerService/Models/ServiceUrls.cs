@@ -1,7 +1,7 @@
 ﻿
 using System.ComponentModel.DataAnnotations;
 
-namespace FunGame.Common
+namespace PlayerService.Models
 {
     public class ServiceUrls
     {
