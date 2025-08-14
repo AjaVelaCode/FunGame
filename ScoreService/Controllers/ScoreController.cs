@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System.Collections.Concurrent;
+using FunGame.Common;
 using NLog;
 using ScoreService.Model;
 
@@ -20,7 +21,7 @@ namespace ScoreService.Controllers
                 if (string.IsNullOrEmpty(request.Result))
                 {
                     Logger.Warn($"Invalid score request: {request}");
-                    return BadRequest(new { Error = "Invalid game result." });
+                    return BadRequest(new ErrorResponse { Error = "Invalid game result." });
                 }
 
                 try
@@ -45,12 +46,13 @@ namespace ScoreService.Controllers
                 var recentResults = GameResults
                     .OrderByDescending(r => r.Timestamp)
                     .Take(10)
-                    .Select(r => new
+                    .Select(r => new RecentResponse()
                     {
-                        r.UserId,
-                        PlayerChoice = r.PlayerChoice.ToString(),
-                        ComputerChoice = r.ComputerChoice.ToString(),
-                        r.Result
+                        UserId = r.UserId,
+                        PlayerChoice = r.PlayerChoice,
+                        ComputerChoice = r.ComputerChoice,
+                        Result = r.Result,
+                        Timestamp = r.Timestamp
                     })
                     .ToList();
 
@@ -78,6 +80,12 @@ namespace ScoreService.Controllers
                 Logger.Error(ex, "Error resetting scoreboard.");
                 throw; // Middleware handles
             }
+        }
+
+        // Added for testing
+        protected void ClearGameResultsForTesting()
+        {
+            while (GameResults.TryTake(out _)) { } // Clear all items
         }
     }
 }

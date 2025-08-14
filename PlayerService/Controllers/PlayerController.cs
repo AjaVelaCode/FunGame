@@ -4,7 +4,6 @@ using Microsoft.Extensions.Options;
 using NLog;
 using PlayerService.Models;
 using System.Net;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace PlayerService.Controllers
 {
@@ -31,7 +30,7 @@ namespace PlayerService.Controllers
         {
             try
             {
-                var choices = Enum.GetNames<GameChoice>();
+                var choices = GameChoice.None.GetValuesWithout();
                 Logger.Info($"Retrieved all game choices: {string.Join(", ", choices)}");
                 return Ok(choices);
             }
@@ -47,10 +46,10 @@ namespace PlayerService.Controllers
         {
             try
             {
-                var choices = Enum.GetValues<GameChoice>();
+                var choices = GameChoice.None.GetValuesWithout();
                 var randomChoice = await GetComputerChoiceAsync(choices);
                 Logger.Info($"Generated random choice: {randomChoice}");
-                return Ok(new { Choice = randomChoice.ToString() });
+                return Ok(new RandomChoiceResponse { Choice = randomChoice });
             }
             catch (Exception ex)
             {
@@ -65,19 +64,19 @@ namespace PlayerService.Controllers
         {
             if (request.PlayerChoice == GameChoice.None)
             {
-                Logger.Warn("There is no player's choice");
-                return BadRequest(new { Error = "There is no player's choice" });
+                Logger.Warn("PlayerChoice is required");
+                return BadRequest(new ErrorResponse { Error = "PlayerChoice is required." });
             }
 
             if (!Enum.IsDefined(typeof(GameChoice), request.PlayerChoice))
             {
                 Logger.Warn($"Invalid player choice: {request.PlayerChoice}");
-                return BadRequest(new { Error = $"Invalid choice. Choose {string.Join(", ", Enum.GetNames(typeof(GameChoice)))}." });
+                return BadRequest(new ErrorResponse { Error = $"Invalid choice. Choose {string.Join(", ", GameChoice.None.GetValuesWithout())}." });
             }
 
             try
             {
-                var choices = Enum.GetValues<GameChoice>();
+                var choices = GameChoice.None.GetValuesWithout();
                 
                 var computerChoice = await GetComputerChoiceAsync(choices);
 
@@ -183,7 +182,7 @@ namespace PlayerService.Controllers
         {
             var funFact = GameConstants.GetFunFact(request.PlayerChoice, computerChoice, result);
 
-            return Ok(new
+            return Ok(new GamePlayResponse
             {
                 PlayerChoice = request.PlayerChoice,
                 ComputerChoice = computerChoice,

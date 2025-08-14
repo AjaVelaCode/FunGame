@@ -11,6 +11,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FunGame.Common", "Common\Fu
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ScoreService", "ScoreService\ScoreService.csproj", "{5280C76A-59CD-4738-9235-E0352E190586}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PlayerService.Tests", "PlayerService.Tests\PlayerService.Tests.csproj", "{7AE2B39E-BC15-4527-9E03-09ACD4D6F783}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ScoreService.Tests", "ScoreService.Tests\ScoreService.Tests.csproj", "{2F808F83-2207-4414-B2C6-AFEF53EDE010}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +37,14 @@ Global
 		{5280C76A-59CD-4738-9235-E0352E190586}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5280C76A-59CD-4738-9235-E0352E190586}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5280C76A-59CD-4738-9235-E0352E190586}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7AE2B39E-BC15-4527-9E03-09ACD4D6F783}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7AE2B39E-BC15-4527-9E03-09ACD4D6F783}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7AE2B39E-BC15-4527-9E03-09ACD4D6F783}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7AE2B39E-BC15-4527-9E03-09ACD4D6F783}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2F808F83-2207-4414-B2C6-AFEF53EDE010}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2F808F83-2207-4414-B2C6-AFEF53EDE010}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2F808F83-2207-4414-B2C6-AFEF53EDE010}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2F808F83-2207-4414-B2C6-AFEF53EDE010}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
