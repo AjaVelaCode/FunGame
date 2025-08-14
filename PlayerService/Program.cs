@@ -1,3 +1,4 @@
+using FunGame.Common.Middlewares;
 using NLog.Web;
 using ServiceUrls = PlayerService.Models.ServiceUrls;
 
@@ -25,6 +26,7 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
+app.UseMiddleware<ErrorHandlingMiddleware>();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

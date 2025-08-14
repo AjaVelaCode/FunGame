@@ -13,8 +13,11 @@ services:
     depends_on:
       - game-service
       - score-service
+    volumes:
+      - /c/Logs/FunGame:/app/logs
     networks:
       - rpsls-network
+
 
   game-service:
     build:
@@ -24,6 +27,8 @@ services:
       - "5001:5001"
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
+    volumes:
+      - /c/Logs/FunGame:/app/logs
     networks:
       - rpsls-network
 
@@ -35,6 +40,8 @@ services:
       - "5002:5002"
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
+    volumes:
+      - /c/Logs/FunGame:/app/logs
     networks:
       - rpsls-network
 
