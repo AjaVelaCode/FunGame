@@ -35,8 +35,15 @@ namespace PlayerService.Controllers
         {
             try
             {
-                var choices = GameChoice.None.GetValuesWithout();
-                Logger.Info($"Retrieved all game choices: {string.Join(", ", choices)}");
+                var choices = GameChoiceExtensions.GetValidChoices()
+                    .Select(c => new ChoiceResponse
+                    {
+                        Id = (int)c,
+                        Name = c.ToString().ToLowerInvariant()
+                    })
+                    .ToList();
+
+                Logger.Info($"Retrieved all game choices: {string.Join(", ", choices.Select(choice => choice.Name))}");
                 return Ok(choices);
             }
             catch (Exception ex)
@@ -51,13 +58,13 @@ namespace PlayerService.Controllers
         {
             try
             {
-                var choices = GameChoice.None.GetValuesWithout();
+                var choices = GameChoiceExtensions.GetValidChoices();
                 var randomChoice = await GetComputerChoiceAsync(choices);
                 Logger.Info($"Generated random choice: {randomChoice}");
                 return Ok(new RandomChoiceResponse
                 {
                     Id = (int)randomChoice,
-                    Choice = randomChoice
+                    Name = randomChoice.ToString().ToLowerInvariant()
                 });
             }
             catch (Exception ex)
@@ -71,25 +78,25 @@ namespace PlayerService.Controllers
         [HttpPost("play")]
         public async Task<IActionResult> Play([FromBody] PlayRequest request)
         {
-            if (request.PlayerChoice == GameChoice.None)
+            if (request.PlayerChoiceId == -1)
             {
-                Logger.Warn("PlayerChoice is required");
-                return BadRequest(new ErrorResponse { Error = "PlayerChoice is required." });
+                Logger.Warn("PlayerChoiceId is required");
+                return BadRequest(new ErrorResponse { Error = "PlayerChoiceId is required." });
             }
 
-            if (!Enum.IsDefined(typeof(GameChoice), request.PlayerChoice))
+            if (!Enum.IsDefined(typeof(GameChoice), request.PlayerChoiceId))
             {
-                Logger.Warn($"Invalid player choice: {request.PlayerChoice}");
-                return BadRequest(new ErrorResponse { Error = $"Invalid choice. Choose {string.Join(", ", GameChoice.None.GetValuesWithout())}." });
+                Logger.Warn($"Invalid player choice: {request.PlayerChoiceId}");
+                return BadRequest(new ErrorResponse { Error = $"Invalid choice. Choose {string.Join(", ", GameChoiceExtensions.GetValidChoiceNames())}." });
             }
 
             try
             {
-                var choices = GameChoice.None.GetValuesWithout();
+                var choices = GameChoiceExtensions.GetValidChoices();
                 
                 var computerChoice = await GetComputerChoiceAsync(choices);
 
-                var gameResult = await CalculateGameResultAsync(request.PlayerChoice, computerChoice);
+                var gameResult = await CalculateGameResultAsync((GameChoice)request.PlayerChoiceId, computerChoice);
 
                 await SaveScoreAsync(request, computerChoice, gameResult.Result);
 
@@ -173,7 +180,7 @@ namespace PlayerService.Controllers
             var scoreResult = new
             {
                 UserId = string.IsNullOrEmpty(request.UserId) ? "Anonymous" : request.UserId,
-                PlayerChoice = request.PlayerChoice,
+                PlayerChoice = request.PlayerChoiceId,
                 ComputerChoice = computerChoice,
                 Result = result
             };
@@ -193,11 +200,11 @@ namespace PlayerService.Controllers
 
         private IActionResult GetGameResult(PlayRequest request, GameChoice computerChoice, string result)
         {
-            var funFact = GameConstants.GetFunFact(request.PlayerChoice, computerChoice, result);
+            var funFact = GameConstants.GetFunFact((GameChoice)request.PlayerChoiceId, computerChoice, result);
 
             return Ok(new GamePlayResponse
             {
-                PlayerChoice = request.PlayerChoice,
+                PlayerChoice = (GameChoice)request.PlayerChoiceId,
                 ComputerChoice = computerChoice,
                 Result = result,
                 FunFact = funFact

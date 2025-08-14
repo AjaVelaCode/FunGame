@@ -1,4 +1,5 @@
 ﻿using FunGame.Common.Constants;
+using FunGame.Common.Helpers;
 using FunGame.Common.Requests;
 using FunGame.Common.Responses;
 using Microsoft.AspNetCore.Mvc;
@@ -16,19 +17,19 @@ namespace GameService.Controllers
         [HttpPost("compute")]
         public IActionResult Compute([FromBody] ComputeRequest request)
         {
-            if (!ModelState.IsValid)
-            {
-                Logger.Warn($"Invalid compute request: {ModelState}");
-                return BadRequest(ModelState);
-            }
-
             try
             {
-                if (!Enum.IsDefined(typeof(GameChoice), request.PlayerChoice) ||
-                    !Enum.IsDefined(typeof(GameChoice), request.ComputerChoice))
+                if (request.PlayerChoice == GameChoice.None || request.ComputerChoice == GameChoice.None)
+                {
+                    Logger.Warn($"Invalid game request: {request}");
+                    return BadRequest(new ErrorResponse { Error = "Invalid game choices." });
+                }
+
+                if (!GameChoiceExtensions.GetValidChoices().Contains(request.PlayerChoice) ||
+                    !GameChoiceExtensions.GetValidChoices().Contains(request.ComputerChoice))
                 {
                     Logger.Warn($"Invalid choices: PlayerChoice={request.PlayerChoice}, ComputerChoice={request.ComputerChoice}");
-                    return BadRequest(new ErrorResponse { Error = "Invalid player or computer choice." });
+                    return BadRequest(new ErrorResponse { Error = $"Invalid choice. Choose {string.Join(", ", GameChoiceExtensions.GetValidChoiceNames())}." });
                 }
 
                 if (request.PlayerChoice == request.ComputerChoice)

@@ -1,12 +1,14 @@
-﻿using FunGame.Common.Constants;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace PlayerService.Models.Requests
 {
     public class PlayRequest
     {
-        [Required(ErrorMessage = "PlayerChoice is required.")]
-        public GameChoice PlayerChoice { get; set; } = GameChoice.None;
+        [Required(ErrorMessage = "PlayerChoiceId is required.")]
+        //public GameChoice PlayerChoiceId { get; set; } = GameChoice.None;
+        [JsonPropertyName("player")]
+        public int PlayerChoiceId { get; set; } = -1;
         public string UserId { get; set; } = string.Empty;
     }
 }

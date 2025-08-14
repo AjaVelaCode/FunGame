@@ -59,6 +59,30 @@ public class ScoreControllerTests
     }
 
     [Fact]
+    public void Add_InvalidChoice_ReturnsBadRequest()
+    {
+        // Arrange
+        var invalidResult = new GameResult
+        {
+            UserId = "Alice",
+            PlayerChoice = (GameChoice)(-2), // Invalid choice
+            ComputerChoice = GameChoice.Rock,
+            Result = "Player wins!",
+            Timestamp = DateTime.UtcNow
+        };
+
+        // Act
+        var result = _controller.Add(invalidResult) as BadRequestObjectResult;
+        var errorResponse = JsonConvert.DeserializeObject<ErrorResponse>(JsonConvert.SerializeObject(result!.Value));
+
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.Equal(400, result.StatusCode);
+        Assert.Contains("Invalid choice.", errorResponse!.Error);
+    }
+
+    [Fact]
     public void GetRecent_NoResults_ReturnsEmptyList()
     {
         // Arrange

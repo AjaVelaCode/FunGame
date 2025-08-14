@@ -42,13 +42,19 @@ namespace PlayerService.Tests
         {
             // Act
             var result = _controller.GetAllChoices() as OkObjectResult;
-            var choices = result?.Value as GameChoice[];
+            var choices = result?.Value as List<ChoiceResponse>;
 
             // Assert
             Assert.NotNull(result);
             Assert.Equal(200, result.StatusCode);
-            Assert.Equal(new[] { GameChoice.Rock, GameChoice.Paper, GameChoice.Scissors, GameChoice.Lizard, GameChoice.Spock}, choices);
-            if (choices != null) Assert.DoesNotContain(GameChoice.None, choices);
+            Assert.NotNull(choices);
+            Assert.Equal(5, choices.Count);
+
+            var expectedNames = new[] { "rock", "paper", "scissors", "lizard", "spock" };
+            var actualNames = choices.Select(c => c.Name).ToArray();
+            Assert.Equal(expectedNames, actualNames);
+
+            Assert.DoesNotContain(choices, c => c.Name == "none");
         }
 
         [Fact]
@@ -61,15 +67,14 @@ namespace PlayerService.Tests
             // Assert
             Assert.NotNull(result);
             Assert.Equal(200, result.StatusCode);
-            Assert.Contains(response.Choice, GameChoice.None.GetValuesWithout());
-            Assert.NotEqual(GameChoice.None, response.Choice);
+            Assert.Contains(response.Name, GameChoiceExtensions.GetValidChoiceNames());
         }
 
         [Fact]
         public async Task Play_ValidRequest_ReturnsGameResult()
         {
             // Arrange
-            var request = new PlayRequest { PlayerChoice = GameChoice.Paper, UserId = "Alice" };
+            var request = new PlayRequest { PlayerChoiceId = (int)GameChoice.Paper, UserId = "Alice" };
 
             // Act
             var result = await _controller.Play(request) as OkObjectResult;
@@ -79,7 +84,7 @@ namespace PlayerService.Tests
             Assert.NotNull(result);
             Assert.Equal(200, result.StatusCode);
             Assert.Equal(GameChoice.Paper, response.PlayerChoice);
-            Assert.Contains(response.ComputerChoice, GameChoice.None.GetValuesWithout());
+            Assert.Contains(response.ComputerChoice, GameChoiceExtensions.GetValidChoices());
             Assert.NotEqual(GameChoice.None, response.ComputerChoice);
             Assert.NotEmpty(response.Result);
         }
@@ -88,7 +93,7 @@ namespace PlayerService.Tests
         public async Task Play_EmptyBody_ReturnsBadRequest()
         {
             // Arrange
-            var request = new PlayRequest(); // Simulates {} with PlayerChoice = None
+            var request = new PlayRequest(); // Simulates {} with PlayerChoiceId = None
 
             // Act
             var result = await _controller.Play(request) as BadRequestObjectResult;
@@ -97,14 +102,14 @@ namespace PlayerService.Tests
             // Assert
             Assert.NotNull(result);
             Assert.Equal(400, result.StatusCode);
-            Assert.Contains("PlayerChoice is required.", errorResponse!.Error);
+            Assert.Contains("PlayerChoiceId is required.", errorResponse!.Error);
         }
 
         [Fact]
         public async Task Play_InvalidPlayerChoice_ReturnsBadRequest()
         {
             // Arrange
-            var request = new PlayRequest { PlayerChoice = (GameChoice)(-2), UserId = "Alice" };
+            var request = new PlayRequest { PlayerChoiceId = -2, UserId = "Alice" };
 
             // Act
             var result = await _controller.Play(request) as BadRequestObjectResult;
@@ -120,7 +125,7 @@ namespace PlayerService.Tests
         public async Task Play_DefaultPlayerChoiceNone_ReturnsBadRequest()
         {
             // Arrange
-            var request = new PlayRequest { PlayerChoice = GameChoice.None, UserId = "Alice" };
+            var request = new PlayRequest { PlayerChoiceId = (int)GameChoice.None, UserId = "Alice" };
 
             // Act
             var result = await _controller.Play(request) as BadRequestObjectResult;
@@ -129,7 +134,7 @@ namespace PlayerService.Tests
             // Assert
             Assert.NotNull(result);
             Assert.Equal(400, result.StatusCode);
-            Assert.Contains("PlayerChoice is required.", errorResponse!.Error);
+            Assert.Contains("PlayerChoiceId is required.", errorResponse!.Error);
         }
 
     }

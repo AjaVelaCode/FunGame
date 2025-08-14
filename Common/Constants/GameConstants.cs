@@ -6,11 +6,11 @@ namespace FunGame.Common.Constants
     public enum GameChoice
     {
         None = -1, // Sentinel value for uninitialized choice
-        Rock,
-        Paper,
-        Scissors,
-        Lizard,
-        Spock
+        Rock = 1,
+        Paper = 2,
+        Scissors = 3,
+        Lizard = 4,
+        Spock = 5
     }
 
     public static class GameConstants

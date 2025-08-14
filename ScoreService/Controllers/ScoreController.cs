@@ -1,9 +1,11 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using System.Collections.Concurrent;
+﻿using FunGame.Common.Constants;
 using FunGame.Common.Responses;
+using Microsoft.AspNetCore.Mvc;
 using NLog;
 using ScoreService.Model;
 using ScoreService.Model.Responses;
+using System.Collections.Concurrent;
+using FunGame.Common.Helpers;
 
 namespace ScoreService.Controllers
 {
@@ -18,24 +20,32 @@ namespace ScoreService.Controllers
         [HttpPost("add")]
         public IActionResult Add([FromBody] GameResult request)
         {
+            if (string.IsNullOrEmpty(request.UserId) 
+                || request.PlayerChoice == GameChoice.None 
+                || request.ComputerChoice == GameChoice.None
+                || string.IsNullOrEmpty(request.Result))
             {
-                if (string.IsNullOrEmpty(request.Result))
-                {
-                    Logger.Warn($"Invalid score request: {request}");
-                    return BadRequest(new ErrorResponse { Error = "Invalid game result." });
-                }
+                Logger.Warn($"Invalid game result received: {request}");
+                return BadRequest(new ErrorResponse { Error = "Invalid game result." });
+            }
 
-                try
-                {
-                    GameResults.Add(request);
-                    Logger.Info($"Score added for user {request.UserId}: {request.PlayerChoice} vs {request.ComputerChoice}, Result: {request.Result}");
-                    return Ok();
-                }
-                catch (Exception ex)
-                {
-                    Logger.Error(ex, $"Error adding score for user {request.UserId}");
-                    throw; // Middleware handles
-                }
+            if (!GameChoiceExtensions.GetValidChoices().Contains(request.PlayerChoice) ||
+                !GameChoiceExtensions.GetValidChoices().Contains(request.ComputerChoice))
+            {
+                Logger.Warn($"Invalid choices in game result: Player={request.PlayerChoice}, Computer={request.ComputerChoice}");
+                return BadRequest(new { Error = $"Invalid choice. Choose {string.Join(", ", GameChoiceExtensions.GetValidChoiceNames())}." });
+            }
+
+            try
+            {
+                GameResults.Add(request);
+                Logger.Info($"Score added for user {request.UserId}: {request.PlayerChoice} vs {request.ComputerChoice}, Result: {request.Result}");
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                Logger.Error(ex, $"Error adding score for user {request.UserId}");
+                throw; // Middleware handles
             }
         }
 
