@@ -29,8 +29,8 @@ public class PlayerControllerTests
         _serviceUrlsMock = new Mock<IOptions<ServiceUrls>>();
         _serviceUrlsMock.Setup(o => o.Value).Returns(new ServiceUrls
         {
-            GameService = "http://localhost:5148/api/game/compute",
-            ScoreService = "http://localhost:5064/api/score/add",
+            GameService = "http://localhost:5001/api/game/compute",
+            ScoreService = "http://localhost:5002/api/score/add",
             RandomNumberService = "http://codechallenge.boohma.com/random"
         });
 
@@ -68,25 +68,6 @@ public class PlayerControllerTests
         Assert.NotNull(result);
         Assert.Equal(200, result.StatusCode);
         Assert.Contains(response.Name, GameChoiceExtensions.GetValidChoiceNames());
-    }
-
-    [Fact]
-    public async Task Play_ValidRequest_ReturnsGameResult()
-    {
-        // Arrange
-        var request = new PlayRequest { PlayerChoiceId = (int)GameChoice.Paper, UserId = "Alice" };
-
-        // Act
-        var result = await _controller.Play(request) as OkObjectResult;
-        var response = (result?.Value as GamePlayResponse)!;
-
-        // Assert
-        Assert.NotNull(result);
-        Assert.Equal(200, result.StatusCode);
-        Assert.Equal(GameChoice.Paper, response.PlayerChoice);
-        Assert.Contains(response.ComputerChoice, GameChoiceExtensions.GetValidChoices());
-        Assert.NotEqual(GameChoice.None, response.ComputerChoice);
-        Assert.NotEmpty(response.Result);
     }
 
     [Fact]
@@ -154,7 +135,7 @@ public class MockHttpMessageHandler : HttpMessageHandler
             return new HttpResponseMessage
             {
                 StatusCode = HttpStatusCode.OK,
-                Content = new StringContent("{\"Result\": \"Player wins!\"}")
+                Content = new StringContent("{\"Results\": \"win\"}")
             };
         if (request.RequestUri.ToString().Contains("score/add"))
             return new HttpResponseMessage

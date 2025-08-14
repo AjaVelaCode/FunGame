@@ -211,9 +211,9 @@ public class PlayerController : ControllerBase // Use primary constructor syntax
 
         return Ok(new GamePlayResponse
         {
-            PlayerChoice = (GameChoice)request.PlayerChoiceId,
-            ComputerChoice = computerChoice,
-            Result = result,
+            PlayerChoice = request.PlayerChoiceId,
+            ComputerChoice = (int)computerChoice,
+            Results = result,
             FunFact = funFact
         });
     }

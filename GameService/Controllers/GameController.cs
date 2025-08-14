@@ -38,17 +38,17 @@ public class GameController : ControllerBase
             if (request.PlayerChoice == request.ComputerChoice)
             {
                 Logger.Info($"Game tied: {request.PlayerChoice} vs {request.ComputerChoice}");
-                return Ok(new GameResponse { Result = "Tie" });
+                return Ok(new GameResponse { Result = "tie" });
             }
 
             if (GameConstants.WinsAgainst[request.PlayerChoice].Contains(request.ComputerChoice))
             {
                 Logger.Info($"Player wins: {request.PlayerChoice} beats {request.ComputerChoice}");
-                return Ok(new GameResponse { Result = "Player wins!" });
+                return Ok(new GameResponse { Result = "win" });
             }
 
             Logger.Info($"Computer wins: {request.PlayerChoice} loses to {request.ComputerChoice}");
-            return Ok(new GameResponse { Result = "Computer wins!" });
+            return Ok(new GameResponse { Result = "lose" });
         }
         catch (Exception ex)
         {

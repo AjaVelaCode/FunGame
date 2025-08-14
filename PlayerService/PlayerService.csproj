@@ -21,10 +21,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Utilities\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\Common\FunGame.Common.csproj" />
   </ItemGroup>
 
